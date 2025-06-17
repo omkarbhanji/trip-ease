@@ -1,0 +1,38 @@
+.container {
+  max-width: 500px;
+  margin: 120px auto;
+  padding: 25px;
+  background-color: #f0f8ff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.heading {
+  color: #28a745;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.detail {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}

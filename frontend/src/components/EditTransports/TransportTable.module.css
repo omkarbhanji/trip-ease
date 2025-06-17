@@ -1,0 +1,57 @@
+.tableWrapper {
+    margin: 60px auto;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.transportTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.transportTable th,
+.transportTable td {
+  border: 1px solid #ddd;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.transportTable th {
+  background-color: #f4f6f8;
+  color: #333;
+  font-weight: 600;
+}
+
+.transportTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.transportTable tr:hover {
+  background-color: #eef3f9;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.actionsCell {
+  text-align: center;
+}
+
+.editButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.editButton:hover {
+  background-color: #0056b3;
+}
+
