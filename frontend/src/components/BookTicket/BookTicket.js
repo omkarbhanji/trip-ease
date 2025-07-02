@@ -9,7 +9,8 @@ const token = localStorage.getItem('token');
 const BookTicket =  () => {
 
   const [ticket, setTicket] = useState(null);
-  const [errorMessage, setErrorMessage] = useState("No Error");
+  const [errorMessage, setErrorMessage] = useState("");
+const [loading, setLoading] = useState(true); 
   const navigate = useNavigate();
 
   const handleGotoMyBookings = () => {
@@ -17,18 +18,35 @@ const BookTicket =  () => {
   };
 
 function calculateArrival(departureDate, departureTime, durationInHours) {
- 
-  const departureDateTimeStr = `${departureDate}T${departureTime}:00`;
+  console.log("calculateArrival called with:", departureDate, departureTime, durationInHours);
 
+  if (!departureDate || !departureTime || typeof durationInHours !== "number") {
+    throw new Error("Invalid input: departureDate, departureTime, or durationInHours missing or invalid");
+  }
 
+  // Ensure date is in YYYY-MM-DD and time is HH:MM
+  const datePart = departureDate.trim();
+  const timePart = departureTime.trim();
+
+  const departureDateTimeStr = `${datePart}T${timePart}:00`; 
   const departureDateTime = new Date(departureDateTimeStr);
+
+  console.log("departureDateTimeStr:", departureDateTimeStr);
+  console.log("departureDateTime:", departureDateTime);
+
+  if (isNaN(departureDateTime.getTime())) {
+    throw new Error(`Invalid departure date or time: ${departureDateTimeStr}`);
+  }
 
   const durationMs = durationInHours * 60 * 60 * 1000;
   const arrivalDateTime = new Date(departureDateTime.getTime() + durationMs);
 
-  
+  if (isNaN(arrivalDateTime.getTime())) {
+    throw new Error("Invalid arrival date calculation");
+  }
+
   const arrivalDate = arrivalDateTime.toISOString().split("T")[0];
-  const arrivalTime = arrivalDateTime.toTimeString().slice(0, 5); 
+  const arrivalTime = arrivalDateTime.toTimeString().slice(0, 5); // HH:MM
 
   return { arrivalDate, arrivalTime };
 }
@@ -39,48 +57,60 @@ function calculateArrival(departureDate, departureTime, durationInHours) {
     const location = useLocation();
 
     useEffect(() => {
-    const bookTicket = async () => {
-      try {
-        console.log(location.state);
-        const transport = location.state.transport;
-        const date = location.state.date;
-          console.log( date, transport.time,transport.timeofJourney);
-        const {arrivalDate, arrivalTime} = calculateArrival(date, transport.time, transport.timeofJourney);
+  const bookTicket = async () => {
+    try {
+      setLoading(true);
+      setErrorMessage("");
+      const transport = location.state?.transport;
+      const date = location.state?.date;
 
-        const newTicket = {
-          transportMode: transport.transportMode,
-          source: transport.source,
-          destination: transport.destination,
-          departureDate: date,
-          arrivalDate: arrivalDate,
-          bookingDate: new Date().toISOString(),
-          arrivalTime: arrivalTime
-        };
-        console.log("New ticket is: ", newTicket);
-       
-        const response = await axios.post(
-          'http://localhost:5000/ticket/bookticket',
-          newTicket, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }
-        );
-         console.log(response);
-        console.log('Ticket booked. Status:', response.status);
-        setTicket(response.data.data);
-      } catch (err) {
-        console.error('Booking failed:', err);
-        setErrorMessage(err.message);
+      if (!transport || !date) {
+        throw new Error("Missing transport or date info");
       }
-    };
 
-    bookTicket();
-  }, [location]);
+      const time = transport.time || "00:00";
+      const duration = Number(transport.timeofJourney) || 0;
+
+      const { arrivalDate, arrivalTime } = calculateArrival(date, time, duration);
+
+      const newTicket = {
+        transportMode: transport.transportMode,
+        source: transport.source,
+        destination: transport.destination,
+        departureDate: date,
+        arrivalDate,
+        bookingDate: new Date().toISOString(),
+        arrivalTime
+      };
+
+      const response = await axios.post(
+        'http://localhost:5000/ticket/bookticket',
+        newTicket,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setTicket(response.data.data);
+    } catch (err) {
+      console.error('Booking failed:', err);
+      setErrorMessage(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  bookTicket();
+}, [location]);
+
     
   return (
 <div className={styles.container}>
-      {ticket ? (
+      {loading ? (
+    <h3 className={styles.heading}>Booking your ticket, please wait...</h3>
+  ) : ticket ? (
         <div>
           <h3 className={styles.heading}>Ticket Booked Successfully!</h3>
           <p className={styles.detail}><strong>Ticket ID:</strong> {ticket._id}</p>

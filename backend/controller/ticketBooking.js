@@ -54,7 +54,7 @@ exports.bookTicket = async (req, res) => {
 
     const mailOptions = {
       from: "bhanjiomkar@gmail.com",
-      to: "omkar.bhanji22@vit.edu",
+      to: "bhanjiomkar@gmail.com",
       subject: 'Your Ticket Confirmation',
       html: `
         <h2>Ticket Confirmation</h2>
@@ -65,7 +65,8 @@ exports.bookTicket = async (req, res) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    const mail_status = await transporter.sendMail(mailOptions);
+    console.log("mail status is : ", mail_status);
     res.status(201).json({ message: "Ticket Booked", data: newTicket });
 
   } catch (err) {
